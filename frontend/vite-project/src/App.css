@@ -1,0 +1,406 @@
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --bg-light: #f8fafc;
+  --text-main: #111827;
+  --text-muted: #64748b;
+  --overlay: rgba(15, 23, 42, 0.75);
+  --sidebar-bg: #0f172a;
+  --white: #ffffff;
+}
+
+/* 1. Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* 2. Layout Structure */
+.chat-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar - Fixed width & Professional Dark Theme */
+.chat-sidebar {
+  width: 280px;
+  min-width: 280px; 
+  background-color: var(--sidebar-bg);
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  border-right: 1px solid #1e293b;
+}
+
+/* Chat Interface - Responsive Flex Grow */
+.chat-interface {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-light);
+  position: relative;
+}
+
+/* 3. Full Screen Center (Upload & Processing) */
+.full-screen-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  
+  z-index: 1000;
+  background-image: url('/front.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.full-screen-center::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--overlay);
+}
+
+.upload-card, .processing-card {
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  
+  padding: 40px;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-width: 440px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. Choose File & Analyze Button (Specific Implementation) */
+#file-hidden { display: none; }
+
+.file-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  cursor: pointer;
+  color: #475569;
+  font-weight: 500;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-label:hover {
+  border-color: var(--primary);
+  background: #f5f3ff;
+  color: var(--primary);
+}
+
+.start-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+}
+
+.start-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
+.start-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.start-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 5. Sidebar Elements & Session Items */
+.sidebar-header {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #64748b;
+  margin-bottom: 24px;
+  font-weight: 800;
+}
+
+.session-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.session-item {
+  padding: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  transition: 0.2s ease;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+}
+
+.session-item:hover { background: #1e293b; color: var(--white); }
+.session-item.active { background: #1e293b; color: var(--white); border-left: 4px solid var(--primary); }
+
+.delete-session-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.session-item:hover .delete-session-btn { opacity: 1; }
+.delete-session-btn:hover { color: #ef4444; }
+
+.new-chat-btn {
+  margin-top: 16px;
+  padding: 14px;
+  background: #1e293b;
+  color: var(--white);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.new-chat-btn:hover { background: #334155; }
+
+/* 6. Chat Components & Bubbles */
+.chat-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  background: var(--white);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.nav-logo { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+.file-tag { background: #f1f5f9; padding: 8px 16px; border-radius: 12px; font-size: 13px; color: #475569; font-weight: 500; }
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chat-row { display: flex; width: 100%; }
+.chat-row.user { justify-content: flex-end; }
+
+.chat-bubble {
+  max-width: 70%;
+  padding: 16px 20px;
+  border-radius: 20px;
+  font-size: 15px;
+  line-height: 1.6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.user .chat-bubble { background: var(--primary); color: var(--white); border-bottom-right-radius: 4px; }
+.bot .chat-bubble { background: var(--white); border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; color: var(--text-main); }
+
+/* 7. Input Area */
+.chat-input-area {
+  padding: 24px 40px;
+  background: var(--white);
+  border-top: 1px solid #e2e8f0;
+}
+
+.input-box {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  outline: none;
+  font-size: 15px;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.input-box input:focus { border-color: var(--primary); }
+
+.input-box button {
+  padding: 0 32px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.input-box button:hover { background: var(--primary-dark); }
+
+/* 8. Miscellaneous */
+.custom-icon { width: 80px; height: 80px; margin-bottom: 8px; }
+
+.progress-container {
+  width: 100%; background: #e2e8f0; height: 10px; border-radius: 10px; margin-top: 15px; overflow: hidden;
+}
+.progress-bar { background: var(--primary); height: 100%; transition: width 0.4s ease; }
+.percent { font-weight: 800; color: var(--primary); margin-top: 8px; font-size: 18px; }
+
+/* Resume Recent section on Home */
+.recent-previews {
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+.small-label { display: block; font-size: 11px; font-weight: 800; color: #94a3b8; margin-bottom: 12px; }
+.preview-list { display: flex; flex-direction: column; gap: 8px; }
+.preview-item {
+  background: #f1f5f9; padding: 12px; border-radius: 12px; font-size: 13px; color: var(--primary); cursor: pointer; text-align: left; transition: 0.2s;
+}
+.preview-item:hover { background: #e2e8f0; transform: translateX(4px); }
+/* Modal Overlay - Darkens and blurs the background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Higher than everything else */
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* The Modal Card */
+.modal-card {
+  background: var(--white);
+  padding: 32px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.modal-card h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.modal-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+/* Modal Buttons */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  border: none;
+}
+
+.cancel-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cancel-btn:hover {
+  background: #e2e8f0;
+}
+
+.confirm-delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.confirm-delete-btn:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
